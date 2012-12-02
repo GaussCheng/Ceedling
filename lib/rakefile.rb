@@ -12,6 +12,7 @@ $LOAD_PATH.unshift( File.join(CEEDLING_VENDOR, 'diy/lib') )
 $LOAD_PATH.unshift( File.join(CEEDLING_VENDOR, 'constructor/lib') )
 $LOAD_PATH.unshift( File.join(CEEDLING_VENDOR, 'cmock/lib') )
 $LOAD_PATH.unshift( File.join(CEEDLING_VENDOR, 'deep_merge/lib') )
+$LOAD_PATH.unshift( File.join(CEEDLING_LIB, 'ide_project_files') )
 
 require 'rake'
 
@@ -46,7 +47,10 @@ project_config =
 @ceedling[:plugin_manager].pre_build
 
 # load rakefile component files (*.rake)
-PROJECT_RAKEFILE_COMPONENT_FILES.each { |component| load(component) }
+PROJECT_RAKEFILE_COMPONENT_FILES.each do |component| 
+  load(component) 
+#  puts component
+end
 
 # tell rake to shut up by default (overridden in verbosity / debug tasks as appropriate)
 verbose(false)
