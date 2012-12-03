@@ -24,6 +24,7 @@ class MplabxProject < IDEProject
     @configs = Document.new
     @project = Document.new
     @project << XMLDecl.new("1.0", "UTF-8")
+    @configs << XMLDecl.new("1.0", "UTF-8")
   end
   
   def generate
@@ -37,8 +38,13 @@ class MplabxProject < IDEProject
     project_type(root)
     project_configuration(root)
     out_file = File.open(File.join(project_path.path, "project.xml"), "w+")
-    @project.write(out_file)
+    @project.write(out_file, 2)
     out_file.close()
+  end
+  
+  def generate_configurations
+    root = @configs.add_element("configurationDescriptor")
+    logical_root = root.add_element("logicalFolder")
   end
   
   def project_type(root)
@@ -62,4 +68,6 @@ class MplabxProject < IDEProject
       end
     end
   end
+  
+  
 end
