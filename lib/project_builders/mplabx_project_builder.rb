@@ -1,15 +1,18 @@
+require 'securerandom'
 require 'rexml/document'
-require 'ide_project'
+require 'project_builder'
 
 include REXML
 
-class MplabxProject < IDEProject
+class MplabxProjectBuilder < ProjectBuilder
   attr_reader :configs, :project
+  attr_reader :uuid
   
   CONFIG_CREATION_UUID  = "creation-uuid"
   CONFIG_NAME           = "name"
   CONFIG_PRJ_TYPE       = "make-project-type"
   CONFIG_ENCODING       = "sourceEncoding"
+  
   @@config_data = {CONFIG_NAME          => "",
                    CONFIG_CREATION_UUID => "",
                    CONFIG_PRJ_TYPE      => "0",
@@ -18,9 +21,13 @@ class MplabxProject < IDEProject
                    "header-extensions"  => "h",
                    CONFIG_ENCODING      => "GBK",
                    "make-dep-projects"  => ""}
+  @@project_type_map = {ProjectBuilder::TEMPLATE_APP        => "0",
+                        ProjectBuilder::TEMPLATE_STATIC_LIB => "1",
+                        ProjectBuilder::TEMPLATE_SHARE_LIB  => "2"}
 
   def initialize(name, template, project_path, coding = "GBK")
     super(name, template, project_path, coding)
+    @uuid = SecureRandom.uuid 
     @configs = Document.new
     @project = Document.new
     @project << XMLDecl.new("1.0", "UTF-8")
@@ -56,7 +63,7 @@ class MplabxProject < IDEProject
     configuration = root.add_element("configuration")
     data = configuration.add_element("data")
     data.add_attribute("xmlns", "http://www.netbeans.org/ns/make-project/1")
-    @@config_data[CONFIG_PRJ_TYPE] = template
+    @@config_data[CONFIG_PRJ_TYPE] = @@project_type_map[template]
     @@config_data[CONFIG_NAME] = name
     @@config_data[CONFIG_CREATION_UUID] = uuid
     @@config_data[CONFIG_ENCODING] = coding

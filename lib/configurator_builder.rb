@@ -146,7 +146,7 @@ class ConfiguratorBuilder
          File.join(CEEDLING_LIB, 'tasks_filesystem.rake'),
          File.join(CEEDLING_LIB, 'tasks_tests.rake'),
          File.join(CEEDLING_LIB, 'tasks_vendor.rake'),
-         File.join(CEEDLING_LIB, 'tasks_ide_project.rake'),
+         File.join(CEEDLING_LIB, 'tasks_project_builder.rake'),
          File.join(CEEDLING_LIB, 'rules_tests.rake')]}
 
     out_hash[:project_rakefile_component_files] << File.join(CEEDLING_LIB, 'rules_cmock.rake') if (in_hash[:project_use_mocks])
