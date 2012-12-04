@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'rake'            # for ext() method
 require 'securerandom'
 require 'rexml/document'
 require 'project_builder'
@@ -5,6 +7,8 @@ require 'project_builder'
 include REXML
 
 class MplabxProjectBuilder < ProjectBuilder
+  
+  constructor :configurator_builder, :file_wrapper
   attr_reader :configs, :project
   attr_reader :uuid
   
@@ -25,8 +29,8 @@ class MplabxProjectBuilder < ProjectBuilder
                         ProjectBuilder::TEMPLATE_STATIC_LIB => "1",
                         ProjectBuilder::TEMPLATE_SHARE_LIB  => "2"}
 
-  def initialize(name, template, project_path, coding = "GBK")
-    super(name, template, project_path, coding)
+  def initialize(coding = "GBK")
+    super(coding)
     @uuid = SecureRandom.uuid 
     @configs = Document.new
     @project = Document.new
@@ -47,6 +51,10 @@ class MplabxProjectBuilder < ProjectBuilder
     out_file = File.open(File.join(project_path.path, "project.xml"), "w+")
     @project.write(out_file, 2)
     out_file.close()
+    
+    Object.const_get("COLLECTION_PATHS_SOURCE").each do |path|
+      puts path
+    end
   end
   
   def generate_configurations

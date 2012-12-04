@@ -4,13 +4,14 @@ class ProjectBuilder
   TEMPLATE_STATIC_LIB   = "static"
   TEMPLATE_SHARE_LIB    = "share"
   
-  attr_accessor :name, :coding, :template, :project_path
+  attr_accessor :name, :coding, :template, :project_path, :ceedling
   
-  def initialize(name, template, project_path, coding = "GBK")
-    @name = name
+  def initialize(coding = "GBK")
+    @name = ""
     @coding = coding
     @template = TEMPLATE_APP
-    @project_path= Dir.new(project_path)
+    @project_path= NIL
+    @ceedling = {}
   end
   
   def generate
