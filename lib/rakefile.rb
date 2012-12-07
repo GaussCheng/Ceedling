@@ -12,7 +12,6 @@ $LOAD_PATH.unshift( File.join(CEEDLING_VENDOR, 'diy/lib') )
 $LOAD_PATH.unshift( File.join(CEEDLING_VENDOR, 'constructor/lib') )
 $LOAD_PATH.unshift( File.join(CEEDLING_VENDOR, 'cmock/lib') )
 $LOAD_PATH.unshift( File.join(CEEDLING_VENDOR, 'deep_merge/lib') )
-$LOAD_PATH.unshift( File.join(CEEDLING_LIB, 'project_builders') )
 
 require 'rake'
 

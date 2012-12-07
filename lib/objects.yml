@@ -305,9 +305,3 @@ build_invoker_utils:
     - streaminator
 
 erb_wrapper:
-  
-mplabx_project_builder:
-  compose:
-    - configurator_builder
-    - file_wrapper
-
