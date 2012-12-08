@@ -4,6 +4,7 @@ require 'securerandom'
 require 'rexml/document'
 require 'find'
 require 'plugin'
+require 'tree'
 
 include REXML
 
@@ -41,19 +42,26 @@ class MplabxProjectBuilder < Plugin
 
   def setup
     @result_list = []
-    @environment = [ {:CEEDLING_USER_PROJECT_FILE => "builder.yml"} ]
+    # @environment = [ {:CEEDLING_USER_PROJECT_FILE => "builder.yml"} ]
     @name = ""
     @coding = coding
     @template = TEMPLATE_APP
     @coding = "GBK"
     @project_path= NIL
-    @uuid = SecureRandom.uuid 
+    @uuid = uuid 
     @configs = Document.new
     @project = Document.new
     @project << XMLDecl.new("1.0", "UTF-8")
     @configs << XMLDecl.new("1.0", "UTF-8")
+    @project_dir_tree = Tree.new
   end
   
+  def self.uuid
+    ary = SecureRandom.random_bytes(16).unpack("NnnnnN")
+    ary[2] = (ary[2] & 0x0fff) | 0x4000
+    ary[3] = (ary[3] & 0x3fff) | 0x8000
+    "%08x-%04x-%04x-%04x-%04x%08x" % ary
+  end
   
   def generate
     generate_project()
@@ -73,7 +81,7 @@ class MplabxProjectBuilder < Plugin
       # puts path
     # end
     #walk(".", ["./vendor/ceedling"], [".c", ".h"])
-    puts @ceedling[:setupinator]
+    generate_configurations
     
   end
   
@@ -81,20 +89,26 @@ class MplabxProjectBuilder < Plugin
     root = @configs.add_element("configurationDescriptor")
     logical_root = root.add_element("logicalFolder")
     set_logicalfolder_attributes(logical_root, "root", "root", "true")
-    logical_head = logical_root.add_element("logicalFolder")
     
-    set_logicalfolder_attributes(logical_head, "HeaderFiles", "Header Files", "true")
+    
+    # logical_head = logical_root.add_element("logicalFolder")
+    # set_logicalfolder_attributes(logical_head, "HeaderFiles", "Header Files", "true")
+    
     logical_linker = logical_root.add_element("logicalFolder")
-    
     set_logicalfolder_attributes(logical_linker, "LinkerScript", "Liker Script", "true")
-    logical_source = logical_root.add_element("logicalFolder")
     
-    set_logicalfolder_attributes(logical_source, "SourceFiles", "Source Files", "true")
-    logical_externals= logical_root.add_element("logicalFolder")
+    @ceedling[:file_system_utils].collect_paths(@ceedling[:setupinator].config_hash[:code_path][:source]).each do |path|
+      rebuild_project_tree(path, logical_root)
+    end
+    puts @project_dir_tree.keys
     
-    set_logicalfolder_attributes(logical_externals, "ExternalFiles", "Important Files", "false")
-    temp_item = logical_externals.add_element("itemPath")
-    temp_item.add_text("Makefile")
+    # logical_source = logical_root.add_element("logicalFolder")
+    # set_logicalfolder_attributes(logical_source, "SourceFiles", "Source Files", "true")
+    
+    # logical_externals= logical_root.add_element("logicalFolder")
+    # set_logicalfolder_attributes(logical_externals, "ExternalFiles", "Important Files", "false")
+    # temp_item = logical_externals.add_element("itemPath")
+    # temp_item.add_text("Makefile")
   end
   
   def project_type(root)
@@ -123,21 +137,39 @@ class MplabxProjectBuilder < Plugin
     element.add_attributes("name" => name, "displayName" => display_name, "projectFiles" => project_files)
   end
   
-  def walk(path, exclude_paths, include_ext)
-    file_ext = nil
-    Find.find(path) do |file|
-      if FileTest.directory?(file)
-        if exclude_paths.include?(file)
-          Find.prune       # Don't look any further into this directory.
-        else
-          next
-        end
-      end
-      file_ext = get_file_ext(file)
-      if include_ext.include?(file_ext)
-        
+  def path_compose(path)
+    path = FilePathUtils.standardize(path)
+    dirs = path.split('/')
+    ret = []
+    tmp = ""
+    dirs.each do | dir|
+      tmp += dir + "/"
+      ret.push(tmp)
+    end
+    return ret
+  end
+  
+  def rebuild_project_tree(path, root_elment)
+    dirs = path_compose(path)
+    dirs.each do | dir |
+      if not @project_dir_tree.has_key?(dir)
+        @project_dir_tree[dir] = "dir"
       end
     end
+    # file_ext = nil
+    # Find.find(path) do |file|
+      # if FileTest.directory?(file)
+        # if exclude_paths.include?(file)
+          # Find.prune       # Don't look any further into this directory.
+        # else
+          # next
+        # end
+      # end
+      # file_ext = get_file_ext(file)
+      # if include_ext.include?(file_ext)
+#         
+      # end
+    # end
   end
   
   def get_file_ext(file)

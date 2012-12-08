@@ -9,6 +9,7 @@ task :mplabx, [:project_name, :template] do |t, args|
   if not @ceedling[:file_wrapper].exist?(project_dir)
     FileUtils.mkdir(project_dir)
   end
+  @ceedling[:system_wrapper].env_set("CEEDLING_USER_PROJECT_FILE", "builder.yml")
   @ceedling[MPLABXPROJECTBUILDER_SYM].name = args.project_name
   @ceedling[MPLABXPROJECTBUILDER_SYM].template = args.template
   @ceedling[MPLABXPROJECTBUILDER_SYM].project_path = Dir.new(project_dir)
