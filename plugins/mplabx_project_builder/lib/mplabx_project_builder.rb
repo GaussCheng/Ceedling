@@ -152,8 +152,13 @@ class MplabxProjectBuilder < Plugin
   def rebuild_project_tree(path, root_elment)
     path = FilePathUtils.standardize(path)
     dirs = path.split('/')
-    @project_dir_trees.each do |tree|
-      # if tree.value 
+    trees = @project_dir_trees
+    dirs.each do |dir|
+      trees.each do |tree|
+        if tree.value == dir
+          # trees = 
+        end
+      end
     end
     # file_ext = nil
     # Find.find(path) do |file|
