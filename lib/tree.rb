@@ -20,6 +20,11 @@ class Tree
     end
     
     def has_child?(node)
-      
+      self.each do |child|
+        if child == node
+          return true
+        end
+      end
+      return false
     end
   end

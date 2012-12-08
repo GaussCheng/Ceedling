@@ -53,7 +53,7 @@ class MplabxProjectBuilder < Plugin
     @project = Document.new
     @project << XMLDecl.new("1.0", "UTF-8")
     @configs << XMLDecl.new("1.0", "UTF-8")
-    @project_dir_tree = Tree.new
+    @project_dir_trees = []
   end
   
   def self.uuid
@@ -150,11 +150,10 @@ class MplabxProjectBuilder < Plugin
   end
   
   def rebuild_project_tree(path, root_elment)
-    dirs = path_compose(path)
-    dirs.each do | dir |
-      if not @project_dir_tree.has_key?(dir)
-        @project_dir_tree[dir] = "dir"
-      end
+    path = FilePathUtils.standardize(path)
+    dirs = path.split('/')
+    @project_dir_trees.each do |tree|
+      # if tree.value 
     end
     # file_ext = nil
     # Find.find(path) do |file|
