@@ -68,4 +68,5 @@
   :enabled:
     - stdout_pretty_tests_report
     - module_generator
+    - mplabx_project_builder
 ...
