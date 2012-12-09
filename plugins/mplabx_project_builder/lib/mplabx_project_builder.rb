@@ -53,7 +53,7 @@ class MplabxProjectBuilder < Plugin
     @project = Document.new
     @project << XMLDecl.new("1.0", "UTF-8")
     @configs << XMLDecl.new("1.0", "UTF-8")
-    @project_dir_trees = []
+    @project_dir_trees = [] 
   end
   
   def self.uuid
@@ -65,6 +65,7 @@ class MplabxProjectBuilder < Plugin
   
   def generate
     generate_project()
+    generate_configurations
   end
   
   private
@@ -81,7 +82,7 @@ class MplabxProjectBuilder < Plugin
       # puts path
     # end
     #walk(".", ["./vendor/ceedling"], [".c", ".h"])
-    generate_configurations
+    
     
   end
   
@@ -98,9 +99,17 @@ class MplabxProjectBuilder < Plugin
     set_logicalfolder_attributes(logical_linker, "LinkerScript", "Liker Script", "true")
     
     @ceedling[:file_system_utils].collect_paths(@ceedling[:setupinator].config_hash[:code_path][:source]).each do |path|
-      rebuild_project_tree(path, logical_root)
+      rebuild_project_tree(path.to_s.dup, logical_root)
     end
-    puts @project_dir_tree.keys
+    out_file = File.open(File.join(project_path.path, "configurations.xml"), "w+")
+    @configs.write(out_file, 2)
+    out_file.close()
+    # @project_dir_trees.each do |tree|
+      # tree.each do |x|
+        # puts x
+      # end
+      # puts "tree end"
+    # end
     
     # logical_source = logical_root.add_element("logicalFolder")
     # set_logicalfolder_attributes(logical_source, "SourceFiles", "Source Files", "true")
@@ -149,31 +158,68 @@ class MplabxProjectBuilder < Plugin
     return ret
   end
   
-  def rebuild_project_tree(path, root_elment)
+  def rebuild_project_tree(path, root_element)
     path = FilePathUtils.standardize(path)
     dirs = path.split('/')
     trees = @project_dir_trees
+    xml_element = root_element
+    root = nil
+    ele = nil
+    #puts "path: #{path}"
     dirs.each do |dir|
-      trees.each do |tree|
-        if tree.value == dir
-          # trees = 
+      #puts "start , #{trees.empty?}, #{trees.class}, #{dir}"
+      if trees.empty?
+        if trees.class == Tree
+          ele = xml_element.add_element("logicalFolder")
+          set_logicalfolder_attributes(ele, dir, dir, true)
+          root = trees << {dir => ele}
+        else
+          ele = xml_element.add_element("logicalFolder")
+          set_logicalfolder_attributes(ele, dir, dir, true)
+          root = Tree.new({dir => ele})
+          trees.push(root)
+        end
+        trees = root
+        xml_element = ele
+      else
+        is_in_tree = false
+        if trees.class == Tree
+          trees.children.each do |tree|
+            if tree.value.has_key?(dir)
+              trees = tree
+              xml_element = tree.value[dir]
+              is_in_tree = true
+              break
+            end
+          end
+          if not is_in_tree
+            ele = xml_element.add_element("logicalFolder")
+            set_logicalfolder_attributes(ele, dir, dir, true)
+            root = root = trees << {dir => ele}
+            trees = root
+            xml_element = ele
+          end
+        else
+          trees.each do |tree_root|
+            if tree_root.value.has_key?(dir)
+              trees = tree_root
+              xml_element = tree_root.value[dir]
+              is_in_tree = true
+              break
+            end
+          end
+          if not is_in_tree
+            ele = xml_element.add_element("logicalFolder")
+            set_logicalfolder_attributes(ele, dir, dir, true)
+            root = Tree.new({dir => ele})
+            trees.push(root)
+            trees = root
+            xml_element = ele
+          end
         end
       end
     end
-    # file_ext = nil
-    # Find.find(path) do |file|
-      # if FileTest.directory?(file)
-        # if exclude_paths.include?(file)
-          # Find.prune       # Don't look any further into this directory.
-        # else
-          # next
-        # end
-      # end
-      # file_ext = get_file_ext(file)
-      # if include_ext.include?(file_ext)
-#         
-      # end
-    # end
+    #puts "rebuild finish"
   end
   
   def get_file_ext(file)
