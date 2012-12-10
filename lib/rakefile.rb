@@ -28,7 +28,6 @@ require 'target_loader'
 
 # one-stop shopping for all our setup and such after construction
 @ceedling[:setupinator].ceedling = @ceedling
-@ceedling[:system_wrapper].env_set("CEEDLING_USER_PROJECT_FILE", "builder.yml")
 
 project_config =
   begin

@@ -1,0 +1,88 @@
+---
+
+:code_path:
+  :source:
+    - +:src/**
+    - +:vendor/**
+    - -:vendor/support/**
+    - -:vendor/ceedling/**
+  :header:
+    - +:src/**
+    - +:vendor/**
+    - -:vendor/support/**
+    - -:vendor/ceedling/**
+
+:file_extension:
+    :source: .c
+    :header: .h
+
+:tools_set:
+    :target_device: PIC32MX775F512L
+    :platform_tool: PICkit3PlatformTool
+    :language_tool_chain: XC32
+    :language_tool_chain_version: 1.1.0
+
+:cc_properties:
+    :addtional_warnings: true
+    :enable_app_io: true
+    :enable_omit_frame_pointer: false
+    :enable_symbols: true
+    :enable_unroll_loops: false
+    :exclude_floating_point: false
+    :extra_include_directories: 
+    :generate_16_bit_code: false
+    :isolate_each_function: false
+    :make_warnings_into_errors: false
+    :optimization_level: 
+    :place_data_into_section: false
+    :post_instruction_scheduling: default
+    :pre_instruction_scheduling: default
+    :preprocessor_macros: 
+    :strict_ansi: false
+    :support_ansi: false
+    :use_indirect_calls: false
+
+:as_properties:
+    :assembler_symbols: 
+    :enable_symbols: true
+    :exclude_floating_point_library: false
+    :expand_macros: false
+    :extra_include_directories_for_assembler: 
+    :extra_include_directories_for_preprocessor: 
+    :false_conditionals: false
+    :keep_locals: false
+    :list_assembly: false
+    :list_file: 
+    :list_section_info: false
+    :list_source: false
+    :list_symbols: false
+    :omit_debug_dirs: false
+    :omit_forms: false
+    :preprocessor_macros: 
+    :warning_level: 
+
+:ld_properties:
+    :enable_check_sections: false
+    :exclude_floating_point_library: false
+    :exclude_standard_libraries: false
+    :extra_lib_directories: 
+    :generate_16_bit_code: false
+    :generate_cross_reference_file: false
+    :heap_size: 1
+    :input_libraries: 
+    :linker_symbols: 
+    :map_file: 
+    :no_startup_files: false
+    :optimization_level: 
+    :preprocessor_macros: 
+    :remove_unused_sections: false
+    :report_memory_usage: false
+    :stack_size: 
+    :symbol_stripping: 
+    :trace_symbols: 
+    :warn_section_align: false
+
+:global_properties:
+    :legacy_libc: false
+
+...

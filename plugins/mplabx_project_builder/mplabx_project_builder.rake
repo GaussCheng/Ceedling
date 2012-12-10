@@ -7,7 +7,7 @@ task :mplabx, [:project_name, :template] do |t, args|
   args.with_defaults(:project_name => File.basename(FileUtils.pwd), :template => MplabxProjectBuilder::TEMPLATE_APP)
   project_dir = args.project_name + '.X'
   if not @ceedling[:file_wrapper].exist?(project_dir)
-    FileUtils.mkdir(project_dir)
+    FileUtils.mkdir_p(File.join(project_dir, "nbproject"))
   end
   @ceedling[MPLABXPROJECTBUILDER_SYM].name = args.project_name
   @ceedling[MPLABXPROJECTBUILDER_SYM].template = args.template
