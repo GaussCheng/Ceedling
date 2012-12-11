@@ -68,10 +68,18 @@ class MplabxProjectBuilder < Plugin
   end
   
   def generate
-    @ceedling[:file_wrapper].cp(File.join(@plugin_root, 'assets/Makefile'), 
-                                File.join(project_path.path, "Makefile"))
-    @ceedling[:file_wrapper].cp(File.join(@plugin_root, "assets/#{MPLABXPROJECTBUILDER_CONF}"), 
-                                File.join(project_path.path, MPLABXPROJECTBUILDER_CONF))
+    make_file = File.join(project_path.path, "Makefile")
+    if not @ceedling[:file_wrapper].exist?(make_file)
+      @ceedling[:file_wrapper].cp(File.join(@plugin_root, 'assets/Makefile'), 
+                                  make_file)
+    end
+    
+    builder_file = File.join(project_path.path, MPLABXPROJECTBUILDER_CONF)
+    
+    if not @ceedling[:file_wrapper].exist?(builder_file)
+      @ceedling[:file_wrapper].cp(File.join(@plugin_root, "assets/#{MPLABXPROJECTBUILDER_CONF}"), 
+                                  builder_file)
+    end
     @config_hash = @ceedling[:yaml_wrapper].load(File.join(project_path.path, MPLABXPROJECTBUILDER_CONF))
     
     generate_project
@@ -126,6 +134,7 @@ class MplabxProjectBuilder < Plugin
     temp_element.add_text("Makefile")
     confs =  root.add_element("confs")
     conf(confs, "default")
+    conf(confs, "release")
     out_file = File.open(File.join(project_path.path + "/nbproject/", "configurations.xml"), "w+")
     @configs.write(out_file)
     out_file.close()
@@ -248,7 +257,7 @@ class MplabxProjectBuilder < Plugin
   def properties_element_helper(element, config_hash)
     config_hash.each do |key, value|
       # puts "key:#{key} value:#{value}"
-      element.add_element("property", {"key" => key.to_s.gsub("_", "-"), "value"=>value})
+      element.add_element("property", {"key" => key.to_s.gsub("_", "-"), "value"=>"#{value}"})
     end
   end
   
