@@ -1,6 +1,6 @@
 
 class Tree
-    attr_reader :value, :children
+    attr_accessor :value, :children
     def initialize(value)
       @value = value
       @children = []

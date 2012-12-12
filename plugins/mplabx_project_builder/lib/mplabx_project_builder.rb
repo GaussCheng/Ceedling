@@ -12,6 +12,7 @@ MPLABXPROJECTBUILDER_ROOT_NAME         = 'mplabx_project_builder'
 MPLABXPROJECTBUILDER_TASK_ROOT         = MPLABXPROJECTBUILDER_ROOT_NAME + ':'
 MPLABXPROJECTBUILDER_SYM               = MPLABXPROJECTBUILDER_ROOT_NAME.to_sym
 MPLABXPROJECTBUILDER_CONF              = 'mplabx_builder.yml'
+ROOT_HCONFIG_PATH                      = 'Hconfig.yml'
 
 class MplabxProjectBuilder < Plugin
   
@@ -57,6 +58,7 @@ class MplabxProjectBuilder < Plugin
     @configs << XMLDecl.new("1.0", "UTF-8")
     @project_dir_trees = [] 
     @config_hash = @ceedling[:setupinator].config_hash
+    @hconfig_hash = Tree.new({})
   end
   
   def self.uuid
@@ -68,6 +70,12 @@ class MplabxProjectBuilder < Plugin
   end
   
   def generate
+    if not File.exists?(ROOT_HCONFIG_PATH)
+      puts "root Hconfig.yml is not found!"
+      return
+    end
+    @hconfig_hash.value = @ceedling[:yaml_wrapper].load(ROOT_HCONFIG_PATH)
+    parse_hconfig(@hconfig_hash)
     make_file = File.join(project_path.path, "Makefile")
     if not @ceedling[:file_wrapper].exist?(make_file)
       @ceedling[:file_wrapper].cp(File.join(@plugin_root, 'assets/Makefile'), 
@@ -361,6 +369,11 @@ class MplabxProjectBuilder < Plugin
       end
     end
     return all_source
+  end
+  
+  def parse_hconfig(parent_config)
+    sources = @ceedling[:file_system_utils].collect_paths(parent_config.value[:configs][:source])
+    puts sources
   end
   
 end
