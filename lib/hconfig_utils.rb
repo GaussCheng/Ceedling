@@ -58,7 +58,8 @@ class HconfigUtils
   
   def parse_config_source(config_hash, file_list)
     raise ArgumentError if file_list.class != FileList
-    if @hconfig_define[:"#{config_hash[:name]}"] == true
+    # if @hconfig_define[:"#{config_hash[:name]}"] == true
+    if config_en?(config_hash)
       all_source = @file_wrapper.instantiate_file_list
       config_hash[:source].each do |path|
         all_source.include(path)
@@ -83,6 +84,23 @@ class HconfigUtils
         parse_hconfig(child, hconfig_dir, hconfig_name)
       end
     end
+  end
+  
+  def config_en?(config_hash)
+    if @hconfig_define[:"#{config_hash[:name]}"] == true
+      if config_hash[:depends].nil?
+        return true
+      end
+      depends = config_hash[:depends].partition(',')
+      depends.delete_if { |str| str.empty? }
+      depends.each do |config|
+        if @hconfig_define[:"#{config}"] == false
+          return false
+        end
+      end
+      return true
+    end
+    return false 
   end
   
 end
