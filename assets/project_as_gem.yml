@@ -69,6 +69,7 @@
     - stdout_pretty_tests_report
     - module_generator
     - mplabx_project_builder
+    - hconfig_configurator
 
 :hconfig_name: Hconfig.yml
 :used_hconfig: config.yml
