@@ -305,3 +305,9 @@ build_invoker_utils:
     - streaminator
 
 erb_wrapper:
+
+hconfig_utils:
+  compose:
+    - configurator
+    - yaml_wrapper
+    - file_wrapper

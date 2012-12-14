@@ -5,6 +5,7 @@ require 'rexml/document'
 require 'find'
 require 'plugin'
 require 'tree'
+require 'hconfig_utils'
 
 include REXML
 
@@ -12,7 +13,6 @@ MPLABXPROJECTBUILDER_ROOT_NAME         = 'mplabx_project_builder'
 MPLABXPROJECTBUILDER_TASK_ROOT         = MPLABXPROJECTBUILDER_ROOT_NAME + ':'
 MPLABXPROJECTBUILDER_SYM               = MPLABXPROJECTBUILDER_ROOT_NAME.to_sym
 MPLABXPROJECTBUILDER_CONF              = 'mplabx_builder.yml'
-ROOT_HCONFIG_PATH                      = 'Hconfig.yml'
 
 class MplabxProjectBuilder < Plugin
   
@@ -58,7 +58,6 @@ class MplabxProjectBuilder < Plugin
     @configs << XMLDecl.new("1.0", "UTF-8")
     @project_dir_trees = [] 
     @config_hash = @ceedling[:setupinator].config_hash
-    @hconfig_hash = Tree.new({})
   end
   
   def self.uuid
@@ -70,12 +69,10 @@ class MplabxProjectBuilder < Plugin
   end
   
   def generate
-    if not File.exists?(ROOT_HCONFIG_PATH)
-      puts "root Hconfig.yml is not found!"
-      return
-    end
-    @hconfig_hash.value = @ceedling[:yaml_wrapper].load(ROOT_HCONFIG_PATH)
-    parse_hconfig(@hconfig_hash)
+    @ceedling[:hconfig_utils].build_config_tree
+    @ceedling[:hconfig_utils].build_config_define
+    # @ceedling[:hconfig_utils].hconfig_tree.each { |child| puts child[:configs][:config][:source]}
+    # puts @ceedling[:hconfig_utils].collect_defined_source
     make_file = File.join(project_path.path, "Makefile")
     if not @ceedling[:file_wrapper].exist?(make_file)
       @ceedling[:file_wrapper].cp(File.join(@plugin_root, 'assets/Makefile'), 
@@ -125,13 +122,17 @@ class MplabxProjectBuilder < Plugin
     logical_linker = logical_root.add_element("logicalFolder")
     set_logicalfolder_attributes(logical_linker, "LinkerScript", "Liker Script", "true")
     
-    paths = @ceedling[:file_system_utils].collect_paths(@config_hash[:code_path][:source] + 
-                                                        @config_hash[:code_path][:header])
+    # paths = @ceedling[:file_system_utils].collect_paths(@config_hash[:code_path][:source] + 
+                                                        # @config_hash[:code_path][:header])
     extensions = @ceedling[:file_system_utils].collect_paths(@config_hash[:file_extension][:source]) +
                  @ceedling[:file_system_utils].collect_paths(@config_hash[:file_extension][:header])
-    code_files = collect_code_files(paths, extensions)
-    code_files.each do |code_file|
-      rebuild_project_tree(code_file.to_s.dup, logical_root)      
+    # code_files = collect_code_files(paths, extensions)
+    # code_files.each do |code_file|
+      # rebuild_project_tree(code_file.to_s.dup, logical_root)      
+    # end
+    @ceedling[:hconfig_utils].collect_defined_source.each do |code_file|
+      puts code_file
+      rebuild_project_tree(code_file.to_s.dup, logical_root) 
     end
     logical_externals= logical_root.add_element("logicalFolder")
     set_logicalfolder_attributes(logical_externals, "ExternalFiles", "Important Files", "false")
@@ -369,11 +370,6 @@ class MplabxProjectBuilder < Plugin
       end
     end
     return all_source
-  end
-  
-  def parse_hconfig(parent_config)
-    sources = @ceedling[:file_system_utils].collect_paths(parent_config.value[:configs][:source])
-    puts sources
   end
   
 end

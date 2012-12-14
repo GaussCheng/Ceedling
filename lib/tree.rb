@@ -23,9 +23,11 @@ class Tree
       end
     end
     
-    def children
-      @children
-    end
+    def each_children
+      @children.each do |child_node|
+        yield child_node
+      end
+    end 
     
     def has_child?(node)
       self.each do |child|
