@@ -70,7 +70,7 @@ class MplabxProjectBuilder < Plugin
   
   def generate
     @ceedling[:hconfig_utils].build_config_tree
-    @ceedling[:hconfig_utils].build_config_define
+    #@ceedling[:hconfig_utils].build_config_define
     # @ceedling[:hconfig_utils].hconfig_tree.each { |child| puts child[:configs][:config][:source]}
     # puts @ceedling[:hconfig_utils].collect_defined_source
     make_file = File.join(project_path.path, "Makefile")

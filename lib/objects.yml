@@ -311,3 +311,4 @@ hconfig_utils:
     - configurator
     - yaml_wrapper
     - file_wrapper
+    - streaminator
