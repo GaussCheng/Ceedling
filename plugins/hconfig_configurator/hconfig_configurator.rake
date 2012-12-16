@@ -1,5 +1,5 @@
 
-desc '''generate hconfig configuration with console'''
+desc '''Generate hconfig configuration with console'''
 task :console_hconfig do
   @ceedling[:hconfig_utils].build_config_tree
   hconfig_tree = @ceedling[:hconfig_utils].hconfig_tree
@@ -13,4 +13,10 @@ task :console_hconfig do
       puts "#{key}:" + @ceedling[:streaminator].yellow("#{value}")
     end
   end
+end
+
+desc '''Generate module dependency graph'''
+task :mdgraph, [:graph_name] do |t, args|
+  args.with_defaults(:graph_name => "graph")
+  @ceedling[:hconfig_utils].generate_module_dependency_graph(args[:graph_name])
 end

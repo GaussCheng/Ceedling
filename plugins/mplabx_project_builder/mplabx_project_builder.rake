@@ -2,7 +2,7 @@ require 'constants'
 require 'mplabx_project_builder'
 
 # generate mplabx project file
-desc '''generate maplabx project file(template[app(default), static, share])'''
+desc '''Generate maplabx project file(template[app(default), static, share])'''
 task :mplabx, [:project_name, :template] do |t, args|
   args.with_defaults(:project_name => File.basename(FileUtils.pwd), :template => MplabxProjectBuilder::TEMPLATE_APP)
   project_dir = args.project_name + '.X'

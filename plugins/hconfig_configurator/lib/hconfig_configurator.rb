@@ -57,5 +57,4 @@ class HconfigConfigurator < Plugin
     return ret.chop
   end
   
-  
 end

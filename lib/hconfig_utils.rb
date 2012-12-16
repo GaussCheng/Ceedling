@@ -31,9 +31,6 @@ class HconfigUtils
     end
     
     @hconfig_depends_reverse_graph = @hconfig_depends_graph.reverse
-    require 'rgl/dot'
-    @hconfig_depends_graph.write_to_graphic_file()
-    `dot -Tpng graph.dot -o graph.png`
   end
   
   def build_config_define
@@ -87,6 +84,13 @@ class HconfigUtils
         disable_configs_who_depends_on(v)  
       end
     end
+  end
+  
+  def generate_module_dependency_graph(name)
+    require 'rgl/dot'
+    build_config_tree
+    @hconfig_depends_graph.write_to_graphic_file()
+    `dot -Tpng graph.dot -o #{name}.png`
   end
   
   private 
