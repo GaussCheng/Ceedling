@@ -21,7 +21,7 @@ class HconfigConfigurator < Plugin
     hconfig_tree.each_children do |child|
       config = child.value
       if not hconfig_utils.config_en?(config)
-        hconfig_utils.disable_configs_who_depends_on(child)
+        hconfig_utils.disable_configs_who_depends_on(config[:name])
         next
       end
       print_config(config_define, config)
@@ -35,30 +35,10 @@ class HconfigConfigurator < Plugin
         when "n"
           puts @ceedling[:streaminator].yellow("#{config[:name]}: #{anwser}")
           hconfig_utils.set_config_enable(config, false)
-          hconfig_utils.disable_configs_who_depends_on(child)
+          hconfig_utils.disable_configs_who_depends_on(config[:name])
         end
       end while not ["y", "n"].include?(anwser)
     end
-    # hconfig_tree.value[:configs].each_value do |config|
-      # if not @ceedling[:hconfig_utils].config_depends_en?(config)
-        # current_conf_hash[:"#{config[:name]}"] = false
-        # next
-      # end
-      # print_config(current_conf_hash, config)
-      # begin
-        # anwser = ask_question_with_console("Do you want to enable config #{config[:name]}?", "YyNn")
-        # puts "#{config[:name]}: #{anwser}"
-        # case anwser.downcase
-        # when "y" 
-          # current_conf_hash[:"#{config[:name]}"] = true
-          # hconfig_tree.each_children do |child|
-            # generate_with_console(current_conf_hash, child)
-          # end
-        # when "n"
-          # current_conf_hash[:"#{config[:name]}"] = false
-        # end
-      # end while not ["y", "n"].include?(anwser)
-    # end
   end
   
   def print_config(current_config_hash, config)
@@ -72,7 +52,7 @@ class HconfigConfigurator < Plugin
   end
   
   def ask_question_with_console(question, hint)
-    puts "#{question} [#{hint}]"
+    print "#{question} [#{hint}]"
     ret = STDIN.gets
     return ret.chop
   end

@@ -14,6 +14,7 @@ class HconfigUtils
     @hconfig_tree = Tree.new("root")
     @hconfig_define = {}
     @hconfig_depends_graph = RGL::DirectedAdjacencyGraph.new
+    @hconfig_depends_reverse_graph = nil
   end
   
   def build_config_tree
@@ -29,6 +30,7 @@ class HconfigUtils
       parse_hconfig(hconfig_tree_node, '.', hconfig_name)
     end
     
+    @hconfig_depends_reverse_graph = @hconfig_depends_graph.reverse
     require 'rgl/dot'
     @hconfig_depends_graph.write_to_graphic_file()
     `dot -Tpng graph.dot -o graph.png`
@@ -45,9 +47,6 @@ class HconfigUtils
   
   def collect_defined_source
     all_source = @file_wrapper.instantiate_file_list
-    # @hconfig_tree.value[:configs].each do |config_hash|
-      # parse_config_source(config_hash[:config], all_source)
-    # end
     collect_defined_source_impl(@hconfig_tree, all_source)
     return all_source
   end
@@ -77,9 +76,16 @@ class HconfigUtils
     @hconfig_define[:"#{config_hash[:name]}"] = is_enable
   end
   
-  def disable_configs_who_depends_on(hconfig_node)
-    hconfig_node.each do |config|
-      set_config_enable(config, false)
+  def disable_configs_who_depends_on(config_name)
+    @hconfig_define[:"#{config_name}"] = false
+    if @hconfig_depends_reverse_graph.has_vertex?(config_name)
+      if not @hconfig_depends_reverse_graph.cycles_with_vertex(config_name).empty?
+        puts @streaminator.red("Found cycle depends of #{config_name}!")
+        return
+      end 
+      @hconfig_depends_reverse_graph.each_adjacent(config_name) do |v|
+        disable_configs_who_depends_on(v)  
+      end
     end
   end
   
@@ -129,7 +135,7 @@ class HconfigUtils
     end
     @hconfig_depends_graph.add_vertex(parent_config.value[:name])
     config_depends(parent_config.value).each do |depend_config_name|
-      @hconfig_depends_graph.add_edge(depend_config_name, parent_config.value[:name])
+      @hconfig_depends_graph.add_edge(parent_config.value[:name], depend_config_name)
     end
     sources = parent_config.value[:source]
     hconfig_dir = nil
