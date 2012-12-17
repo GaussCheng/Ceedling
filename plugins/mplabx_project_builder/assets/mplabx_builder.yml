@@ -84,5 +84,8 @@
 
 :global_properties:
     :legacy_libc: false
+    
+:config_name_prefix: _
+:config_name_suffix: _ENABLE_
 
 ...

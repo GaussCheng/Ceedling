@@ -58,6 +58,7 @@ class MplabxProjectBuilder < Plugin
     @configs << XMLDecl.new("1.0", "UTF-8")
     @project_dir_trees = [] 
     @config_hash = @ceedling[:setupinator].config_hash
+    @preprocessor_macros = ""
   end
   
   def self.uuid
@@ -69,7 +70,14 @@ class MplabxProjectBuilder < Plugin
   end
   
   def generate
-    @ceedling[:hconfig_utils].build_config_tree
+    config_define_name = @ceedling[:configurator].project_config_hash[:used_hconfig]
+    hconfig_define = @ceedling[:yaml_wrapper].load(config_define_name)
+    @ceedling[:hconfig_utils].build_config_tree(hconfig_define)
+    hconfig_define.each do |key, value|
+      if hconfig_define[key] == true
+        @preprocessor_macros += "#{@config_hash[:config_name_prefix]}#{key}#{@config_hash[:config_name_suffix]};"
+      end
+    end
     #@ceedling[:hconfig_utils].build_config_define
     # @ceedling[:hconfig_utils].hconfig_tree.each { |child| puts child[:configs][:config][:source]}
     # puts @ceedling[:hconfig_utils].collect_defined_source
@@ -240,16 +248,19 @@ class MplabxProjectBuilder < Plugin
   def cc_properties(conf)
     @config_hash[:cc_properties][:extra_include_directories] = "../" + 
         @ceedling[:file_system_utils].collect_paths(@config_hash[:code_path][:header]).join(";../")
+    @config_hash[:cc_properties][:preprocessor_macros] = @preprocessor_macros
     properties = conf.add_element("C32")
     properties_element_helper(properties, @config_hash[:cc_properties])
   end
   
   def as_properties(conf)
+    @config_hash[:as_properties][:preprocessor_macros] = @preprocessor_macros
     properties = conf.add_element("C32-AS")
     properties_element_helper(properties, @config_hash[:as_properties])
   end
   
   def ld_properties(conf)
+    @config_hash[:ld_properties][:preprocessor_macros] = @preprocessor_macros
     properties = conf.add_element("C32-LD")
     properties_element_helper(properties, @config_hash[:ld_properties])
   end

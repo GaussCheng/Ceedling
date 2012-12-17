@@ -73,5 +73,7 @@
     
 :hconfig_name: Hconfig.yml
 :used_hconfig: config.yml
+:config_name_prefix: _
+:config_name_suffix: _ENABLE_
 
 ...

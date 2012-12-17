@@ -17,8 +17,9 @@ class HconfigUtils
     @hconfig_depends_reverse_graph = nil
   end
   
-  def build_config_tree
-    build_config_define
+  def build_config_tree(hconfig_define_hash)
+    #build_config_define
+    @hconfig_define = hconfig_define_hash
     hconfig_name = @configurator.project_config_hash[:hconfig_name]
     if not File.exist?(hconfig_name)
       @streaminator.stdout_puts "Root config file #{hconfig_name} not found!"
@@ -33,14 +34,14 @@ class HconfigUtils
     @hconfig_depends_reverse_graph = @hconfig_depends_graph.reverse
   end
   
-  def build_config_define
-    config_define_name = @configurator.project_config_hash[:used_hconfig]
-    if not File.exist?(config_define_name)
-      @streaminator.stdout_puts "Used config #{config_define_name} is not found!"
-      return
-    end
-    @hconfig_define = @yaml_wrapper.load(config_define_name)
-  end
+  # def build_config_define
+    # config_define_name = @configurator.project_config_hash[:used_hconfig]
+    # if not File.exist?(config_define_name)
+      # @streaminator.stdout_puts "Used config #{config_define_name} is not found!"
+      # return
+    # end
+    # @hconfig_define = @yaml_wrapper.load(config_define_name)
+  # end
   
   def collect_defined_source
     all_source = @file_wrapper.instantiate_file_list
@@ -86,16 +87,16 @@ class HconfigUtils
     end
   end
   
-  def generate_module_dependency_graph(name)
+  def generate_module_dependency_graph(name, hconfig_define)
     require 'rgl/dot'
-    build_config_tree
+    build_config_tree(hconfig_define)
     @hconfig_depends_graph.write_to_graphic_file()
-    `dot -Tpng graph.dot -o #{name}.png`
   end
   
   private 
   
   def check_depends_is_en_deeply(vertex)
+    # return true if not @hconfig_define.has_key?(vertex)
     return false if @hconfig_define[:"#{vertex}"] == false
     if @hconfig_depends_graph.has_vertex?(vertex)
       if not @hconfig_depends_graph.cycles_with_vertex(vertex).empty?
