@@ -18,10 +18,7 @@ end
 
 desc '''Generate hconfig configuratin with tkgui'''
 task :gui_hconfig do
-  hconfig_define = {}
-  @ceedling[:hconfig_utils].build_config_tree(hconfig_define)
-  hconfig_tree = @ceedling[:hconfig_utils].hconfig_tree
-  @ceedling[:hconfig_configurator].generate_with_gui(hconfig_tree)
+  @ceedling[:hconfig_configurator].generate_with_gui()
 end
 
 desc '''Generate module dependency graph'''

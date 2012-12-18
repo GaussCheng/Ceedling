@@ -15,11 +15,13 @@ class HconfigUtils
     @hconfig_define = {}
     @hconfig_depends_graph = RGL::DirectedAdjacencyGraph.new
     @hconfig_depends_reverse_graph = nil
+    @hconfig_name_to_hconfig_tree_map = {}
   end
   
   def build_config_tree(hconfig_define_hash)
     #build_config_define
     @hconfig_define = hconfig_define_hash
+    @hconfig_tree = Tree.new("root")
     hconfig_name = @configurator.project_config_hash[:hconfig_name]
     if not File.exist?(hconfig_name)
       @streaminator.stdout_puts "Root config file #{hconfig_name} not found!"
@@ -68,6 +70,16 @@ class HconfigUtils
   
   def config_en?(config_hash)
     return check_depends_is_en_deeply(config_hash[:name])
+  end
+  
+  def who_depends_on(config_hash)
+    ret = []
+    if @hconfig_depends_reverse_graph.has_vertex?(config_hash[:name])
+      @hconfig_depends_reverse_graph.each_adjacent(config_hash[:name]) do |v|
+        ret.push(@hconfig_name_to_hconfig_tree_map[v].value)
+      end
+    end
+    return ret
   end
   
   def set_config_enable(config_hash, is_enable)
@@ -155,6 +167,7 @@ class HconfigUtils
           puts " [ " + @streaminator.green('DONE') + " ]"
           configs[:configs].each do |config|
             child = parent_config << config[:config]
+            @hconfig_name_to_hconfig_tree_map[child.value[:name]] = child
             @hconfig_depends_graph.add_edge(child.value[:name], parent_config.value[:name])
             parse_hconfig(child, hconfig_dir, hconfig_name)
           end
