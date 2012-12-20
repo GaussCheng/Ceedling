@@ -71,6 +71,10 @@ class MplabxProjectBuilder < Plugin
   
   def generate
     config_define_name = @ceedling[:configurator].project_config_hash[:used_hconfig]
+    if config_define_name.nil? or not File.exist?(config_define_name)
+      puts @ceedling[:streaminator].red("Err:#{config_define_name} not found!")
+      return 
+    end
     hconfig_define = @ceedling[:yaml_wrapper].load(config_define_name)
     @ceedling[:hconfig_utils].build_config_tree(hconfig_define)
     hconfig_define.each do |key, value|

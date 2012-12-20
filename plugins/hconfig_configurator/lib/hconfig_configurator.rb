@@ -203,11 +203,18 @@ class MainFrame < Qt::MainWindow
   
   def on_item_activated(tree_item, col)
     hconfig = @tree_item_to_hconfig_map[tree_item]
-    @descr_text_edit.setText(hconfig_description(hconfig))
+    text = hconfig_description(hconfig)
+    f = File.new("temp.html", "w+")
+    f.write(text)
+    f.close
+    @descr_text_edit.source = "temp.html"
+    @descr_text_edit.reload
+    # @descr_text_edit.text = text
   end
   
   def on_anchor_clicked(url)
-    config_name = url.toString[1..-1]
+    urlname = url.toString
+    config_name = urlname[urlname.rindex("#") + 1..-1]
     tree_item = @hconfig_to_tree_item_map[@config_name_to_hconfig_map[config_name]]
     @configs_tree_widget.scrollToItem(tree_item)
   end
@@ -227,7 +234,9 @@ class MainFrame < Qt::MainWindow
   end
   
   def hconfig_description(hconfig_hash)
-    ret =   "<h1 style='color: blue'>#{hconfig_hash[:name]}</h1>"
+    ret = '''<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /></head>'''
+    ret +=  "<body>"
+    ret +=  "<h1 style='color: blue'>#{hconfig_hash[:name]}</h1>"
     ret +=  "<h2>#{hconfig_hash[:prompt]}</h2>"
     ret +=  "<h3>Depends on:</h3>"
     ret +=  "<ul>#{@hconfig_utils.config_depends(hconfig_hash).map{|x| '<li>[' + 
@@ -237,6 +246,7 @@ class MainFrame < Qt::MainWindow
             config_en_text(x[:name]) + ']<a href=#' + x[:name] + '>' + x[:name] + '</a></li>'}}</ul>"
     ret +=  "<h3>Help:</h3>"
     ret +=  "<p>#{hconfig_hash[:help]}</p>"
+    ret +=  "</body></html>"
     return ret
   end
   

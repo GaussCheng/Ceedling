@@ -23,8 +23,8 @@ class HconfigUtils
     @hconfig_define = hconfig_define_hash
     @hconfig_tree = Tree.new("root")
     hconfig_name = @configurator.project_config_hash[:hconfig_name]
-    if not File.exist?(hconfig_name)
-      @streaminator.stdout_puts "Root config file #{hconfig_name} not found!"
+    if hconfig_name.nil? or not File.exist?(hconfig_name) 
+      @streaminator.stdout_puts @streaminator.red("Root config file #{hconfig_name} not found!")
       return
     end
     configs = @yaml_wrapper.load(hconfig_name)
