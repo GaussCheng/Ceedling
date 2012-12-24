@@ -54,7 +54,7 @@ class HconfigUtils
   def config_depends(config_hash)
     return [] if config_hash[:depends].nil?
     depends = config_hash[:depends].partition(',')
-    depends.delete_if { |str| str.empty? }
+    depends.delete_if { |str| str.empty? or str.nil?}
     return depends
   end
   
@@ -79,6 +79,7 @@ class HconfigUtils
         ret.push(@hconfig_name_to_hconfig_tree_map[v].value)
       end
     end
+    ret.delete_if { |config| config.empty? or config.nil?}
     return ret
   end
   

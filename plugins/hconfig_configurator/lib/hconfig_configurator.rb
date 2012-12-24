@@ -76,6 +76,7 @@ class MainFrame < Qt::MainWindow
         'enable_all()', 
         'disable_all()', 
         'on_config_define_changed(QTreeWidgetItem*, int)',
+        'new_config_file()',
         'open_config_file()',
         'save_config_file()',
         'on_item_activated(QTreeWidgetItem*, int)',
@@ -92,6 +93,7 @@ class MainFrame < Qt::MainWindow
     @config_name_to_hconfig_map = {}
     @menu_bar = Qt::MenuBar.new(self)
     @file_menu = Qt::Menu.new("&File")
+    @new_action = @file_menu.addAction("&New")
     @open_action = @file_menu.addAction("&Open")
     @save_action = @file_menu.addAction("&Save")
     @tool_menu = Qt::Menu.new("&Tool")
@@ -133,6 +135,7 @@ class MainFrame < Qt::MainWindow
     connect(@collapse_action, SIGNAL('triggered()'), self, SLOT('collapse_all()'))
     connect(@enable_all_action, SIGNAL('triggered()'), self, SLOT('enable_all()'))
     connect(@diable_all_action, SIGNAL('triggered()'), self, SLOT('disable_all()'))
+    connect(@new_action, SIGNAL('triggered()'), self, SLOT('new_config_file()'))
     connect(@open_action, SIGNAL('triggered()'), self, SLOT('open_config_file()'))
     connect(@save_action, SIGNAL('triggered()'), self, SLOT('save_config_file()'))
     connect(@configs_tree_widget, SIGNAL('itemClicked(QTreeWidgetItem*, int)'),
@@ -154,6 +157,15 @@ class MainFrame < Qt::MainWindow
   
   def set_config_enable(config_name, is_en)
     @config_define[:"#{config_name}"] = is_en
+  end
+  
+  def new_config_file()
+    @config_define = {}
+    @hconfig_utils.build_config_tree({})
+    @configs_tree_widget.clear
+    load_configs(@hconfig_utils.hconfig_tree)
+    expand_all
+    resize_column_to_contents(0)
   end
   
   def open_config_file()
@@ -204,7 +216,7 @@ class MainFrame < Qt::MainWindow
   def on_item_activated(tree_item, col)
     hconfig = @tree_item_to_hconfig_map[tree_item]
     text = hconfig_description(hconfig)
-    f = File.new("temp.html", "w+")
+    f = File.new("temp.html", "w:UTF-8")
     f.write(text)
     f.close
     @descr_text_edit.source = "temp.html"
