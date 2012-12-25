@@ -2,12 +2,10 @@
 
 :code_path:
   :source:
-    - +:src/**
     - +:vendor/**
     - -:vendor/support/**
     - -:vendor/ceedling/**
   :header:
-    - +:src/**
     - +:vendor/**
     - -:vendor/support/**
     - -:vendor/ceedling/**

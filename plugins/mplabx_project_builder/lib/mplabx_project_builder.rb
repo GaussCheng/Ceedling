@@ -264,7 +264,7 @@ class MplabxProjectBuilder < Plugin
   end
   
   def ld_properties(conf)
-    @config_hash[:ld_properties][:preprocessor_macros] = @preprocessor_macros
+    # @config_hash[:ld_properties][:preprocessor_macros] = @preprocessor_macros
     properties = conf.add_element("C32-LD")
     properties_element_helper(properties, @config_hash[:ld_properties])
   end
@@ -302,9 +302,12 @@ class MplabxProjectBuilder < Plugin
   end
   
   def rebuild_project_tree(path, root_element)
-    path = FilePathUtils.standardize(path)
     dirs = path.split('/')
     dirs.pop
+    path = FilePathUtils.standardize(path)
+    if @config_hash[:file_extension][:header].include?(get_file_ext(path))
+      @config_hash[:code_path][:header].push(File.join(dirs))
+    end
     trees = @project_dir_trees
     xml_element = root_element
     root = nil

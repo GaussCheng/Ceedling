@@ -39,6 +39,9 @@ project_config =
     @ceedling[:setupinator].load_project_files
   end
 
+if not File.exist?(project_config[:project][:build_root])
+  FileUtils.mkdir_p(project_config[:project][:build_root])
+end
 @ceedling[:setupinator].do_setup( project_config )
 
 
